@@ -34,6 +34,16 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/latestJobs", async (req, res) => {
+      const result = await jobColl
+        .find()
+        .sort({ created_at: -1 })
+        .limit(6)
+        .toArray();
+
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
