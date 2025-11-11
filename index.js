@@ -13,7 +13,9 @@ app.use(express.json());
 const verifyFBToken = async (req, res, next) => {
   const authorization = req.headers.authorization;
   if (!authorization) {
-    return res.status(401).send({ message: "Unauthorized Access. Token not found" });
+    return res
+      .status(401)
+      .send({ message: "Unauthorized Access. Token not found" });
   }
   const token = authorization.split(" ")[1];
 
@@ -72,12 +74,18 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/myAddedJobs", verifyFBToken, async (req, res) => {
+      const email = req.query.email;
+      const result = await jobColl.find({ postedByEmail: email }).toArray()
+      res.send(result)
+    });
+
     app.post("/addJob", async (req, res) => {
       const data = req.body;
       const result = await jobColl.insertOne(data);
       res.send(result);
     });
-    app.put("/updateJob/:id", async (req, res) => {
+    app.put("/updateJob/:id", verifyFBToken, async (req, res) => {
       const id = req.params.id;
       const data = req.body;
       const query = { _id: new ObjectId(id) };
@@ -87,7 +95,7 @@ async function run() {
       const result = await jobColl.updateOne(query, update);
       res.send(result);
     });
-    app.delete("/deleteJob/:id", async (req, res) => {
+    app.delete("/deleteJob/:id", verifyFBToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       result = await jobColl.deleteOne(query);
